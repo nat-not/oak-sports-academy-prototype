@@ -1,0 +1,466 @@
+/* ============================================================
+   OAK SPORTS ACADEMY — Global Stylesheet
+   Stack: Next.js 15 App Router · Tailwind CSS v3 · Poppins
+   ============================================================ */
+
+/* ── Google Fonts — Poppins (all weights used in the design) ── */
+@import url("https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,300;1,400;1,500;1,600;1,700&display=swap");
+
+/* ── Tailwind directives ── */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ============================================================
+   CSS CUSTOM PROPERTIES  (mirrors tailwind.config.ts tokens)
+   Use these for any non-Tailwind CSS — keyframe animations,
+   pseudo-elements, dynamic inline styles, etc.
+   ============================================================ */
+@layer base {
+  :root {
+    /* ── Primary Brand — Navy ── */
+    --color-navy:         #071A24;
+    --color-navy-deep:    #041219;
+    --color-navy-light:   #0D2A3A;
+    --color-navy-mid:     #0A2132;
+
+    /* ── Secondary Brand — Green ── */
+    --color-green:        #0B3D2E;
+    --color-green-dark:   #145A3D;
+    --color-green-light:  #1A5C44;
+    --color-green-mid:    #1E7050;
+
+    /* ── Accent — Gold ── */
+    --color-gold:         #D4AF37;
+    --color-gold-bright:  #F2D16B;
+    --color-gold-dark:    #B8941E;
+
+    /* ── Semantic Feedback ── */
+    --color-success:      #2E8B57;
+    --color-warning:      #D99A22;
+    --color-error:        #C93C3C;
+    --color-info:         #3882B6;
+
+    /* ── Neutral ── */
+    --color-neutral-50:   #F9F8F5;
+    --color-neutral-100:  #F2EFE8;
+    --color-neutral-200:  #E4E0D6;
+    --color-neutral-500:  #7A7469;
+    --color-neutral-700:  #3A3630;
+    --color-neutral-900:  #12100B;
+
+    /* ── Radius tokens ── */
+    --radius-sm:    4px;
+    --radius-input: 8px;   /* inputs, buttons */
+    --radius-card:  12px;  /* cards, modals   */
+    --radius-xl:    16px;
+    --radius-pill:  9999px;
+
+    /* ── Spacing base ── */
+    --space-1:  4px;
+    --space-2:  8px;
+    --space-3:  12px;
+    --space-4:  16px;
+    --space-5:  24px;
+    --space-6:  32px;
+    --space-7:  48px;
+    --space-8:  64px;
+    --space-9:  96px;
+    --space-10: 128px;
+
+    /* ── Typography ── */
+    --font-sans:    "Poppins", system-ui, -apple-system, sans-serif;
+    --font-mono:    "JetBrains Mono", "Fira Code", monospace;
+
+    /* ── Transition defaults ── */
+    --transition-fast:   150ms ease;
+    --transition-base:   250ms ease;
+    --transition-slow:   400ms ease;
+
+    /* ── Z-index layers ── */
+    --z-dropdown:  1000;
+    --z-sticky:    1100;
+    --z-overlay:   1200;
+    --z-modal:     1300;
+    --z-toast:     1500;
+
+    /* ── Navbar height (used in layout offset calculations) ── */
+    --navbar-height: 72px;
+
+    /* ── Elevation shadows ── */
+    --shadow-card:   0 4px 12px rgba(7,26,36,0.10), 0 2px 6px rgba(7,26,36,0.07);
+    --shadow-card-lg:0 16px 40px rgba(7,26,36,0.16), 0 6px 14px rgba(7,26,36,0.10);
+    --shadow-gold:   0 4px 18px rgba(212,175,55,0.35);
+    --shadow-nav:    0 2px 16px rgba(7,26,36,0.20);
+    --shadow-modal:  0 24px 64px rgba(7,26,36,0.50), 0 8px 24px rgba(7,26,36,0.35);
+  }
+}
+
+/* ============================================================
+   BASE LAYER — HTML resets & typography defaults
+   ============================================================ */
+@layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  html {
+    font-size: 16px;
+    scroll-behavior: smooth;
+    text-size-adjust: 100%;
+    -webkit-text-size-adjust: 100%;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.6;
+    color: var(--color-navy);
+    background-color: #ffffff;
+    overflow-x: hidden;
+  }
+
+  /* ── Heading defaults — Poppins, tight tracking ── */
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-sans);
+    line-height: 1.15;
+    letter-spacing: -0.015em;
+    font-weight: 700;
+    color: var(--color-navy);
+  }
+
+  h1 { font-size: clamp(2rem,   4vw, 3.75rem); font-weight: 800; }
+  h2 { font-size: clamp(1.6rem, 3vw, 2.5rem);  font-weight: 700; }
+  h3 { font-size: clamp(1.25rem,2.2vw,1.875rem); font-weight: 600; }
+  h4 { font-size: clamp(1.1rem, 1.8vw, 1.5rem);  font-weight: 600; }
+  h5 { font-size: 1.125rem; font-weight: 600; }
+  h6 { font-size: 1rem;     font-weight: 600; }
+
+  p {
+    color: var(--color-neutral-700);
+    line-height: 1.7;
+  }
+
+  /* ── Links ── */
+  a {
+    color: inherit;
+    text-decoration: none;
+    transition: color var(--transition-fast);
+  }
+
+  /* ── Images ── */
+  img,
+  video {
+    max-width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  /* ── Lists ── */
+  ul, ol { list-style: none; }
+
+  /* ── Form element base reset ── */
+  input,
+  textarea,
+  select,
+  button {
+    font-family: inherit;
+    font-size: inherit;
+  }
+
+  button { cursor: pointer; }
+
+  /* ── Focus visible — accessible keyboard navigation ── */
+  :focus-visible {
+    outline: 2px solid var(--color-gold);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+
+  /* ── Selection highlight ── */
+  ::selection {
+    background-color: rgba(212,175,55,0.25);
+    color: var(--color-navy);
+  }
+
+  /* ── Scrollbar styling (webkit) ── */
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-track { background: var(--color-neutral-100); }
+  ::-webkit-scrollbar-thumb {
+    background: var(--color-neutral-300, #CECABE);
+    border-radius: var(--radius-pill);
+  }
+  ::-webkit-scrollbar-thumb:hover { background: var(--color-gold); }
+}
+
+/* ============================================================
+   COMPONENT LAYER — Reusable Tailwind component classes
+   These act as semantic shortcuts consumed by JSX components.
+   ============================================================ */
+@layer components {
+
+  /* ── Section wrapper ── */
+  .section {
+    @apply py-20 md:py-28;
+  }
+
+  .section-sm {
+    @apply py-12 md:py-16;
+  }
+
+  /* ── Container ── */
+  .container-page {
+    @apply w-full max-w-page mx-auto px-4 sm:px-6 lg:px-8;
+  }
+
+  /* ── Gold divider bar ── */
+  .divider-gold {
+    @apply h-[3px] rounded-full bg-gradient-to-r from-gold-dark via-gold to-gold-bright;
+  }
+
+  /* ── Section label (small uppercase eyebrow) ── */
+  .section-label {
+    @apply inline-block font-semibold text-gold tracking-widest text-xs uppercase mb-2;
+  }
+
+  /* ── Section heading ── */
+  .section-heading {
+    @apply text-navy font-bold leading-tight;
+  }
+
+  /* ── Section description ── */
+  .section-desc {
+    @apply text-neutral-500 text-base leading-relaxed max-w-prose;
+  }
+
+  /* ── Card base ── */
+  .card {
+    @apply bg-white rounded-lg border border-neutral-200 shadow-card
+           transition-all duration-300 ease-in-out;
+  }
+
+  .card-dark {
+    @apply bg-navy-light border border-gold/10 rounded-lg shadow-card
+           transition-all duration-300;
+  }
+
+  .card-hover {
+    @apply hover:shadow-card-lg hover:-translate-y-1;
+  }
+
+  /* ── Gradient text helper ── */
+  .text-gradient-gold {
+    @apply bg-gradient-to-r from-gold-dark via-gold to-gold-bright
+           bg-clip-text text-transparent;
+  }
+
+  /* ── Overlay for hero/banner backgrounds ── */
+  .overlay-navy {
+    @apply absolute inset-0 bg-gradient-overlay pointer-events-none;
+  }
+
+  /* ── Nav link ── */
+  .nav-link {
+    @apply relative font-medium text-sm tracking-wide
+           text-white/75 hover:text-gold
+           transition-colors duration-150;
+  }
+
+  .nav-link-active {
+    @apply text-gold;
+  }
+
+  .nav-link::after {
+    content: '';
+    @apply absolute -bottom-1 left-0 w-0 h-[2px]
+           bg-gradient-to-r from-gold to-gold-bright rounded-full
+           transition-all duration-300;
+  }
+
+  .nav-link:hover::after,
+  .nav-link-active::after {
+    @apply w-full;
+  }
+
+  /* ── Chip / pill tag ── */
+  .chip {
+    @apply inline-flex items-center gap-1.5
+           px-3 py-1
+           rounded-pill font-medium text-xs tracking-wide
+           border transition-all duration-150;
+  }
+
+  /* ── Skeleton loader ── */
+  .skeleton {
+    @apply animate-pulse bg-neutral-200 rounded-lg;
+  }
+
+  /* ── Focus ring utilities ── */
+  .focus-gold {
+    @apply focus-visible:outline-none focus-visible:ring-2
+           focus-visible:ring-gold focus-visible:ring-offset-2
+           focus-visible:ring-offset-white;
+  }
+
+  .focus-gold-dark {
+    @apply focus-visible:outline-none focus-visible:ring-2
+           focus-visible:ring-gold focus-visible:ring-offset-2
+           focus-visible:ring-offset-navy;
+  }
+
+  /* ── Page hero base ── */
+  .page-hero {
+    @apply relative bg-gradient-hero text-white overflow-hidden
+           pt-[calc(var(--navbar-height)+4rem)] pb-20 md:pb-28;
+  }
+
+  /* ── Auth panels ── */
+  .auth-panel {
+    @apply min-h-screen grid lg:grid-cols-2;
+  }
+
+  .auth-brand-side {
+    @apply hidden lg:flex flex-col items-center justify-center
+           bg-gradient-hero text-white relative overflow-hidden
+           p-12;
+  }
+
+  .auth-form-side {
+    @apply flex items-center justify-center
+           bg-neutral-50 p-6 sm:p-10;
+  }
+
+  /* ── Toast / alert pill ── */
+  .toast {
+    @apply fixed bottom-8 right-8 z-toast
+           flex items-center gap-3
+           px-5 py-3.5
+           bg-navy text-white
+           border border-gold/30
+           rounded-lg shadow-modal
+           text-sm font-medium
+           transition-transform duration-300;
+  }
+}
+
+/* ============================================================
+   UTILITIES LAYER — One-off utility overrides / additions
+   ============================================================ */
+@layer utilities {
+
+  /* ── Text balance for headings ── */
+  .text-balance { text-wrap: balance; }
+  .text-pretty   { text-wrap: pretty; }
+
+  /* ── Aspect ratios ── */
+  .aspect-hero    { aspect-ratio: 16 / 9; }
+  .aspect-square  { aspect-ratio: 1 / 1; }
+  .aspect-portrait{ aspect-ratio: 3 / 4; }
+
+  /* ── Gradient backgrounds (not supported as bg- utilities from config) ── */
+  .bg-gradient-hero {
+    background: linear-gradient(155deg, #071A24 0%, #0B3D2E 55%, #071A24 100%);
+  }
+
+  .bg-gradient-navy {
+    background: linear-gradient(135deg, #071A24 0%, #041219 100%);
+  }
+
+  .bg-gradient-green {
+    background: linear-gradient(135deg, #0B3D2E 0%, #145A3D 100%);
+  }
+
+  .bg-gradient-gold {
+    background: linear-gradient(135deg, #B8941E 0%, #D4AF37 50%, #F2D16B 100%);
+  }
+
+  /* ── Pattern overlay for hero ── */
+  .pattern-hero::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image:
+      radial-gradient(circle at 20% 50%, rgba(212,175,55,0.07) 0%, transparent 50%),
+      radial-gradient(circle at 80% 20%, rgba(11,61,46,0.20) 0%, transparent 40%);
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  /* ── Glassmorphism ── */
+  .glass {
+    background: rgba(7, 26, 36, 0.45);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(212,175,55,0.15);
+  }
+
+  .glass-light {
+    background: rgba(255,255,255,0.08);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255,255,255,0.12);
+  }
+
+  /* ── Scroll padding for sticky nav offset ── */
+  .scroll-mt-nav {
+    scroll-margin-top: calc(var(--navbar-height) + 16px);
+  }
+
+  /* ── Hide scrollbar while keeping scroll function ── */
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+  /* ── Line clamp helpers ── */
+  .line-clamp-1 { overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 1; }
+  .line-clamp-2 { overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+  .line-clamp-3 { overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; }
+
+  /* ── Animated underline for interactive links ── */
+  .link-underline {
+    @apply relative inline-block;
+  }
+
+  .link-underline::after {
+    content: '';
+    @apply absolute bottom-0 left-0 w-0 h-[1.5px]
+           bg-current rounded-full
+           transition-all duration-300;
+  }
+
+  .link-underline:hover::after { width: 100%; }
+
+  /* ── Pointer none / events ── */
+  .pointer-events-none { pointer-events: none; }
+  .pointer-events-auto { pointer-events: auto; }
+
+  /* ── Visually hidden (accessible screen-reader text) ── */
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }
+}
+
+/* ============================================================
+   PRINT STYLES
+   ============================================================ */
+@media print {
+  .no-print { display: none !important; }
+  body { background: white; color: black; }
+  .bg-gradient-hero,
+  .bg-gradient-navy,
+  .bg-gradient-green { background: #071A24 !important; }
+}
