@@ -220,6 +220,11 @@ export default function DashboardPage() {
   const [selectedPackage, setSelectedPackage] = useState<RegPackage>(null);
   const [confirmToast,    setConfirmToast]    = useState<string | null>(null);
   const [trialAgeGroup,   setTrialAgeGroup]   = useState("");
+  const [regAgeGroup,     setRegAgeGroup]     = useState("");
+  const [selectedProgram, setSelectedProgram] = useState("");
+  const [waiverChecked,      setWaiverChecked]      = useState(false);
+  const [trialWaiverChecked, setTrialWaiverChecked] = useState(false);
+  const [waiverModalOpen,    setWaiverModalOpen]    = useState(false);
   const [notifs,          setNotifs]          = useState(NOTIFICATIONS);
 
   const showPanel = useCallback((p: Panel) => {
@@ -235,11 +240,17 @@ export default function DashboardPage() {
 
   const confirmTrial = () => {
     setTrialModalOpen(false);
+    setTrialAgeGroup("");
+    setTrialWaiverChecked(false);
     showToast("✓ Free trial class booked!");
   };
 
   const confirmEnrollment = () => {
     setRegModalOpen(false);
+    setRegAgeGroup("");
+    setSelectedProgram("");
+    setSelectedPackage(null);
+    setWaiverChecked(false);
     showToast("✓ Enrollment confirmed!");
   };
 
@@ -258,9 +269,6 @@ export default function DashboardPage() {
     { id: "notifications",  icon: "🔔", label: "Notifications",   badge: unreadCount > 0 ? unreadCount : undefined },
   ];
 
-  // ── Price helpers ────────────────────────────────────────────────────────────
-  const withPrice    = trainingOption === "private" ? "₱6,500" : "₱5,500";
-  const withoutPrice = "₱3,800";
 
   return (
     <>
@@ -556,66 +564,280 @@ export default function DashboardPage() {
           {/* ═══ REGISTER / ENROLL ═══ */}
           {activePanel === "register" && (
             <section aria-labelledby="reg-heading">
-              <div className="mb-7">
+              {/* ── Header ── */}
+              <div className="mb-8">
                 <h1 id="reg-heading" className="text-navy font-bold text-2xl">Register / Enroll</h1>
-                <p className="text-neutral-500 text-sm mt-1">Choose what you would like to register for at Oak Sports Academy.</p>
+                <p className="text-neutral-500 text-sm mt-1">
+                  Choose the training option that fits your goals and schedule.
+                </p>
               </div>
 
-              <div className="grid sm:grid-cols-2 gap-6 max-w-2xl mb-8">
-                {/* Free Trial */}
-                <button type="button" onClick={() => setTrialModalOpen(true)}
-                  className="text-left bg-white border-2 border-neutral-200 rounded-2xl p-7
-                             hover:border-green hover:shadow-card-lg hover:-translate-y-1.5
-                             transition-all duration-200 group cursor-pointer">
-                  <div className="w-16 h-16 rounded-2xl bg-gradient-green border border-gold/20
-                                  flex items-center justify-center text-3xl mb-5">🎁</div>
-                  <div className="inline-block bg-green/10 border border-green/20 text-green-mid
-                                  text-[0.62rem] font-semibold tracking-[0.1em] uppercase
-                                  px-2.5 py-1 rounded-full mb-3">
-                    FREE — No Cost
-                  </div>
-                  <h3 className="text-navy font-bold text-xl mb-2">Free Trial Class</h3>
-                  <p className="text-neutral-500 text-sm leading-relaxed mb-4">
-                    Experience Oak Sports Academy Taekwondo Training at no cost. Available for all age groups.
-                  </p>
-                  <ul className="space-y-2">
-                    {["Completely FREE group class","Max 2 trial days per student","All 4 age groups","Max 5 slots per age group","No commitment required"].map((f) => (
-                      <li key={f} className="flex items-start gap-2 text-sm text-neutral-600">
-                        <span className="text-green-mid font-bold flex-shrink-0">✓</span>{f}
-                      </li>
-                    ))}
-                  </ul>
-                </button>
+              {/* ════════════════════════════════════
+                  ROW 1 — Free Trial (full width)
+              ════════════════════════════════════ */}
+              <div className="mb-5">
+                <button
+                  type="button"
+                  onClick={() => setTrialModalOpen(true)}
+                  className="w-full text-left bg-white border-2 border-neutral-200 rounded-2xl
+                             overflow-hidden hover:border-green hover:shadow-card-lg
+                             hover:-translate-y-1 transition-all duration-200 cursor-pointer"
+                >
+                  <div className="grid md:grid-cols-[auto_1fr] gap-0">
+                    {/* Left accent strip */}
+                    <div className="bg-gradient-to-b from-green to-navy-mid
+                                    flex items-center justify-center
+                                    px-8 py-7 md:py-0 min-w-[120px]">
+                      <div className="text-center">
+                        <span className="text-5xl block mb-2" aria-hidden="true">🎁</span>
+                        <span className="font-black text-gold-bright text-2xl leading-none block">
+                          FREE
+                        </span>
+                        <span className="text-white/60 text-[0.6rem] tracking-widest uppercase">
+                          ₱0
+                        </span>
+                      </div>
+                    </div>
 
-                {/* Regular Training */}
-                <button type="button" onClick={() => setRegModalOpen(true)}
-                  className="text-left bg-white border-2 border-neutral-200 rounded-2xl p-7
-                             hover:border-gold hover:shadow-gold hover:-translate-y-1.5
-                             transition-all duration-200 group cursor-pointer">
-                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-gold-dark to-navy
-                                  flex items-center justify-center text-3xl mb-5">🥋</div>
-                  <div className="inline-block bg-gold/12 border border-gold/30 text-gold-dark
-                                  text-[0.62rem] font-semibold tracking-[0.1em] uppercase
-                                  px-2.5 py-1 rounded-full mb-3">
-                    Paid — Choose Package
+                    {/* Content */}
+                    <div className="p-6">
+                      <div className="flex flex-wrap items-center gap-3 mb-3">
+                        <h3 className="text-navy font-bold text-xl">Free Trial Class</h3>
+                        <span className="bg-green/10 border border-green/20 text-green-mid
+                                         text-[0.62rem] font-semibold tracking-[0.1em] uppercase
+                                         px-2.5 py-1 rounded-full">
+                          No Cost · No Commitment
+                        </span>
+                      </div>
+                      <p className="text-neutral-500 text-sm leading-relaxed mb-4 max-w-xl">
+                        Experience Oak Sports Academy Taekwondo training at no cost.
+                        Available for all age groups — perfect for new students exploring the sport.
+                      </p>
+                      <ul className="flex flex-wrap gap-x-6 gap-y-1.5">
+                        {[
+                          "Completely FREE group class",
+                          "Max 2 trial days per student",
+                          "All 4 age groups (3–5, 6–12, 13–17, 18+)",
+                          "Max 5 slots per age group",
+                          "No commitment required",
+                        ].map((f) => (
+                          <li key={f} className="flex items-center gap-2 text-sm text-neutral-600">
+                            <span className="text-green-mid font-bold flex-shrink-0" aria-hidden="true">✓</span>
+                            {f}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
                   </div>
-                  <h3 className="text-navy font-bold text-xl mb-2">Regular Training</h3>
-                  <p className="text-neutral-500 text-sm leading-relaxed mb-4">
-                    Enroll in full Taekwondo training with your choice of program, schedule, and coaching format.
-                  </p>
-                  <ul className="space-y-2">
-                    {["Kyorugi or Poomsae program","Group or One-on-One coaching","8 sessions (6 + 2 bonus)","Twice or thrice weekly","Optional Premium Uniform"].map((f) => (
-                      <li key={f} className="flex items-start gap-2 text-sm text-neutral-600">
-                        <span className="text-gold-dark font-bold flex-shrink-0">✓</span>{f}
-                      </li>
-                    ))}
-                  </ul>
                 </button>
               </div>
 
-              <div className="p-4 bg-info/8 border border-info/25 rounded-xl text-sm text-navy/75 flex gap-3 max-w-2xl">
+              {/* ════════════════════════════════════
+                  ROW 2 — Group Class  |  Private
+              ════════════════════════════════════ */}
+              <div className="grid md:grid-cols-2 gap-5 mb-8">
+
+                {/* ── GROUP CLASS ── */}
+                <div
+                  className="bg-white border-2 border-neutral-200 rounded-2xl overflow-hidden
+                             hover:border-gold hover:shadow-gold hover:-translate-y-1
+                             transition-all duration-200 flex flex-col"
+                >
+                  {/* Card header */}
+                  <div className="bg-gradient-to-br from-navy to-navy-light px-6 pt-6 pb-5">
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="w-12 h-12 rounded-xl bg-gold/15 border border-gold/30
+                                      flex items-center justify-center text-2xl flex-shrink-0">
+                        👥
+                      </div>
+                      <div>
+                        <h3 className="text-white font-bold text-lg leading-tight">Group Classes</h3>
+                        <p className="text-white/55 text-xs mt-0.5">
+                          Min 3 · Max 5 students per group
+                        </p>
+                      </div>
+                    </div>
+                    <p className="text-white/70 text-sm leading-relaxed">
+                      Learn, grow, and stay motivated alongside your peers in an optimal,
+                      small-group environment.
+                    </p>
+                  </div>
+
+                  {/* Package cards */}
+                  <div className="p-5 flex flex-col gap-3 flex-1">
+
+                    {/* Premium */}
+                    <div className="rounded-xl border-2 border-gold/40 bg-gold/5 p-4">
+                      <div className="flex items-start justify-between gap-2 mb-2">
+                        <div>
+                          <span className="text-[0.6rem] font-bold tracking-[0.12em] uppercase
+                                           text-gold-dark bg-gold/15 px-2 py-0.5 rounded-full">
+                            Premium Package
+                          </span>
+                          <p className="text-navy font-black text-2xl mt-1.5 leading-none">
+                            ₱5,500
+                            <span className="text-neutral-400 font-normal text-sm ml-1">/ student</span>
+                          </p>
+                        </div>
+                        <span className="text-[0.62rem] font-semibold text-green-mid bg-green/8
+                                         border border-green/20 px-2 py-1 rounded-full whitespace-nowrap">
+                          Save ₱1,000!
+                        </span>
+                      </div>
+                      <ul className="space-y-1.5">
+                        {[
+                          "8 total sessions",
+                          "🎁 FREE Premium Taekwondo Uniform (every student)",
+                          "Enjoy a ₱1,000 discount",
+                        ].map((f) => (
+                          <li key={f} className="flex items-start gap-2 text-xs text-neutral-700">
+                            <span className="text-gold-dark font-bold flex-shrink-0 mt-0.5">✓</span>
+                            {f}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+
+                    {/* Standard */}
+                    <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-4">
+                      <p className="text-[0.6rem] font-bold tracking-[0.12em] uppercase
+                                    text-neutral-500 mb-1.5">
+                        Standard Package
+                      </p>
+                      <p className="text-navy font-black text-2xl leading-none mb-2">
+                        ₱3,800
+                        <span className="text-neutral-400 font-normal text-sm ml-1">/ student</span>
+                      </p>
+                      <ul className="space-y-1.5">
+                        {[
+                          "8 total sessions",
+                          "No uniform included",
+                        ].map((f) => (
+                          <li key={f} className="flex items-start gap-2 text-xs text-neutral-600">
+                            <span className="text-neutral-400 font-bold flex-shrink-0 mt-0.5">✓</span>
+                            {f}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+
+                    {/* CTA */}
+                    <button
+                      type="button"
+                      onClick={() => { setTrainingOption("group"); setRegModalOpen(true); }}
+                      className="mt-auto w-full py-3 rounded-xl
+                                 bg-gradient-to-r from-gold-dark via-gold to-gold-bright
+                                 text-navy font-bold text-sm tracking-wide
+                                 hover:shadow-gold hover:-translate-y-0.5
+                                 transition-all duration-200"
+                    >
+                      Enroll in Group Class
+                    </button>
+                  </div>
+                </div>
+
+                {/* ── ONE-ON-ONE PRIVATE ── */}
+                <div
+                  className="bg-white border-2 border-neutral-200 rounded-2xl overflow-hidden
+                             hover:border-gold hover:shadow-gold hover:-translate-y-1
+                             transition-all duration-200 flex flex-col"
+                >
+                  {/* Card header */}
+                  <div className="bg-gradient-to-br from-green to-navy-mid px-6 pt-6 pb-5">
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="w-12 h-12 rounded-xl bg-gold/15 border border-gold/30
+                                      flex items-center justify-center text-2xl flex-shrink-0">
+                        🎯
+                      </div>
+                      <div>
+                        <h3 className="text-white font-bold text-lg leading-tight">One-on-One Private</h3>
+                        <p className="text-white/55 text-xs mt-0.5">
+                          1 student · 1 dedicated coach
+                        </p>
+                      </div>
+                    </div>
+                    <p className="text-white/70 text-sm leading-relaxed">
+                      Maximize your growth with individualized attention tailored specifically
+                      to your pace and goals.
+                    </p>
+                  </div>
+
+                  {/* Package cards */}
+                  <div className="p-5 flex flex-col gap-3 flex-1">
+
+                    {/* Premium */}
+                    <div className="rounded-xl border-2 border-gold/40 bg-gold/5 p-4">
+                      <div className="flex items-start justify-between gap-2 mb-2">
+                        <div>
+                          <span className="text-[0.6rem] font-bold tracking-[0.12em] uppercase
+                                           text-gold-dark bg-gold/15 px-2 py-0.5 rounded-full">
+                            Premium Package
+                          </span>
+                          <p className="text-navy font-black text-2xl mt-1.5 leading-none">
+                            ₱6,500
+                          </p>
+                        </div>
+                      </div>
+                      <ul className="space-y-1.5">
+                        {[
+                          "8 total sessions (6 Sessions + 2 FREE Bonus Sessions)",
+                          "🎁 FREE Premium Taekwondo Uniform",
+                          "Fully personalised curriculum",
+                        ].map((f) => (
+                          <li key={f} className="flex items-start gap-2 text-xs text-neutral-700">
+                            <span className="text-gold-dark font-bold flex-shrink-0 mt-0.5">✓</span>
+                            {f}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+
+                    {/* Standard */}
+                    <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-4">
+                      <p className="text-[0.6rem] font-bold tracking-[0.12em] uppercase
+                                    text-neutral-500 mb-1.5">
+                        Standard Package
+                      </p>
+                      <p className="text-navy font-black text-2xl leading-none mb-2">₱3,800</p>
+                      <ul className="space-y-1.5">
+                        {[
+                          "8 total sessions (6 Sessions + 2 FREE Bonus Sessions)",
+                          "No uniform included",
+                        ].map((f) => (
+                          <li key={f} className="flex items-start gap-2 text-xs text-neutral-600">
+                            <span className="text-neutral-400 font-bold flex-shrink-0 mt-0.5">✓</span>
+                            {f}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+
+                    {/* CTA */}
+                    <button
+                      type="button"
+                      onClick={() => { setTrainingOption("private"); setRegModalOpen(true); }}
+                      className="mt-auto w-full py-3 rounded-xl
+                                 bg-gradient-to-r from-gold-dark via-gold to-gold-bright
+                                 text-navy font-bold text-sm tracking-wide
+                                 hover:shadow-gold hover:-translate-y-0.5
+                                 transition-all duration-200"
+                    >
+                      Book Private Session
+                    </button>
+                  </div>
+                </div>
+
+              </div>
+
+              {/* ── By Appointment notice ── */}
+              <div className="p-4 bg-info/8 border border-info/25 rounded-xl
+                              text-sm text-navy/75 flex gap-3">
                 <span className="text-info flex-shrink-0" aria-hidden="true">ℹ️</span>
-                <p>OSA operates on a <strong>By Appointment Only</strong> basis. After selecting your registration type, you will choose your preferred schedule and time slot.</p>
+                <p>
+                  OSA operates on a <strong>By Appointment Only</strong> basis.
+                  After selecting your training option, you will choose your preferred
+                  schedule and time slot.
+                </p>
               </div>
             </section>
           )}
@@ -763,78 +985,239 @@ export default function DashboardPage() {
         onClose={() => setTrialModalOpen(false)}
         footer={
           <>
-            <Button variant="secondary" size="md" onClick={() => setTrialModalOpen(false)}>Cancel</Button>
-            <Button variant="primary"   size="md" onClick={confirmTrial}>Confirm Free Trial</Button>
+            <Button variant="secondary" size="md" onClick={() => setTrialModalOpen(false)}>
+              Cancel
+            </Button>
+            <Button
+              variant="primary"
+              size="md"
+              onClick={confirmTrial}
+              disabled={!trialWaiverChecked}
+              title={!trialWaiverChecked
+                ? "Please read and agree to the waiver to continue."
+                : undefined}
+            >
+              Confirm Free Trial
+            </Button>
           </>
         }
       >
-        <div className="space-y-5">
-          <div className="p-3.5 bg-success/8 border border-success/25 rounded-xl flex gap-2.5 text-sm text-navy/80">
+        <div className="space-y-6">
+
+          {/* Info banner */}
+          <div className="p-3.5 bg-success/8 border border-success/25 rounded-xl
+                          flex gap-2.5 text-sm text-navy/80">
             <span aria-hidden="true" className="text-success flex-shrink-0">🎉</span>
-            <div><strong>FREE GROUP TRIAL CLASS</strong> — Experience Oak Sports Academy training! Max 2 trial days. Limited slots per age group.</div>
+            <div>
+              <strong>FREE GROUP TRIAL CLASS</strong> — Experience OSA Taekwondo training at no
+              cost. Max 2 trial days per student. Total capacity: 20 students across all groups.
+            </div>
           </div>
 
-          {/* Age group */}
+          {/* Age Group Selection */}
           <div>
-            <p className="font-semibold text-[0.68rem] tracking-[0.15em] uppercase text-navy/90 mb-2.5">
-              Select Age Group <span className="text-error">*</span>
+            <p className="font-semibold text-[0.68rem] tracking-[0.15em] uppercase
+                           text-navy/90 mb-3">
+              Step 1 — Select Your Age Group <span className="text-error">*</span>
             </p>
-            <div className="grid sm:grid-cols-2 gap-3">
+
+            {/* Capacity bar */}
+            <div className="flex items-center justify-between mb-3 px-1">
+              <span className="text-xs text-neutral-500">Total Capacity</span>
+              <span className="text-xs font-semibold text-navy">20 Students (5 per group)</span>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
               {[
-                { v:"3-5",   l:"3–5 Years Old",  s:"Max 5 slots" },
-                { v:"6-12",  l:"6–12 Years Old", s:"Max 5 slots" },
-                { v:"13-17", l:"13–17 Years Old", s:"Max 5 slots" },
-                { v:"adult", l:"Adult (18+)",    s:"Max 5 slots" },
-              ].map(({ v, l, s }) => (
-                <button key={v} type="button"
+                { v: "3-5",    icon: "🐣", label: "3 – 5 Years Old",   sub: "Little Champions", slots: 5 },
+                { v: "6-12",   icon: "🧒", label: "6 – 12 Years Old",  sub: "Junior Warriors",  slots: 5 },
+                { v: "13-18",  icon: "🧑", label: "13 – 18 Years Old", sub: "Teen Athletes",    slots: 5 },
+                { v: "adults", icon: "🏅", label: "Adults (18+)",      sub: "Adult Champions",  slots: 5 },
+              ].map(({ v, icon, label, sub, slots }) => (
+                <button
+                  key={v}
+                  type="button"
                   onClick={() => setTrialAgeGroup(v)}
                   aria-pressed={trialAgeGroup === v}
                   className={cn(
                     "text-left p-4 rounded-xl border-2 transition-all duration-150",
                     trialAgeGroup === v
-                      ? "border-gold bg-gold/5"
-                      : "border-neutral-200 hover:border-gold/40"
-                  )}>
-                  <p className="font-semibold text-navy text-sm">{l}</p>
-                  <p className="text-neutral-400 text-xs mt-0.5">{s}</p>
+                      ? "border-gold bg-gold/5 shadow-gold-sm"
+                      : "border-neutral-200 hover:border-gold/40 bg-white"
+                  )}
+                >
+                  <div className="flex items-start justify-between gap-2 mb-2">
+                    <span className="text-2xl" aria-hidden="true">{icon}</span>
+                    {trialAgeGroup === v && (
+                      <span className="w-5 h-5 rounded-full bg-gold flex items-center
+                                       justify-center text-navy text-[0.65rem] font-black
+                                       flex-shrink-0">
+                        ✓
+                      </span>
+                    )}
+                  </div>
+                  <p className="font-bold text-navy text-sm leading-tight">{label}</p>
+                  <p className="text-neutral-500 text-xs mt-0.5">{sub}</p>
+                  {/* Slot indicator */}
+                  <div className="mt-3 flex items-center gap-2">
+                    <div className="flex gap-0.5">
+                      {Array.from({ length: slots }).map((_, i) => (
+                        <div
+                          key={i}
+                          className="w-4 h-1.5 rounded-full bg-green-mid/40"
+                        />
+                      ))}
+                    </div>
+                    <span className="text-[0.62rem] text-neutral-400">
+                      {slots} slots available
+                    </span>
+                  </div>
                 </button>
               ))}
             </div>
           </div>
 
           {/* Date + time */}
-          <div className="grid sm:grid-cols-2 gap-4">
-            <div>
-              <label className="font-semibold text-[0.68rem] tracking-[0.15em] uppercase text-navy/90 block mb-1.5">
-                Preferred Trial Date <span className="text-error">*</span>
-              </label>
-              <input type="date"
-                className="w-full h-11 px-4 rounded-md border border-neutral-300 text-sm bg-white
-                           focus:outline-none focus:border-gold focus:shadow-focus-gold transition-all" />
-            </div>
-            <div>
-              <label className="font-semibold text-[0.68rem] tracking-[0.15em] uppercase text-navy/90 block mb-1.5">
-                Preferred Time <span className="text-error">*</span>
-              </label>
-              <select className="w-full h-11 px-4 rounded-md border border-neutral-300 text-sm bg-white
-                                  focus:outline-none focus:border-gold focus:shadow-focus-gold transition-all appearance-none">
-                <option value="" disabled>Select time slot</option>
-                {["8:00 AM – 9:30 AM","10:00 AM – 11:30 AM","2:00 PM – 3:30 PM","4:00 PM – 5:30 PM"].map((t) => (
-                  <option key={t}>{t}</option>
-                ))}
-              </select>
+          <div>
+            <p className="font-semibold text-[0.68rem] tracking-[0.15em] uppercase
+                           text-navy/90 mb-3">
+              Step 2 — Schedule Your Trial Day <span className="text-error">*</span>
+            </p>
+            <div className="grid sm:grid-cols-2 gap-4">
+              <div>
+                <label className="font-semibold text-[0.68rem] tracking-[0.15em] uppercase
+                                   text-navy/90 block mb-1.5">
+                  Preferred Date
+                </label>
+                <input
+                  type="date"
+                  className="w-full h-11 px-4 rounded-md border border-neutral-300 text-sm
+                             bg-white focus:outline-none focus:border-gold
+                             focus:shadow-focus-gold transition-all"
+                />
+              </div>
+              <div>
+                <label className="font-semibold text-[0.68rem] tracking-[0.15em] uppercase
+                                   text-navy/90 block mb-1.5">
+                  Preferred Time
+                </label>
+                <select
+                  className="w-full h-11 px-4 rounded-md border border-neutral-300 text-sm
+                             bg-white focus:outline-none focus:border-gold
+                             focus:shadow-focus-gold transition-all appearance-none"
+                >
+                  <option value="" disabled>Select time slot</option>
+                  {["8:00 AM – 9:30 AM", "10:00 AM – 11:30 AM",
+                    "2:00 PM – 3:30 PM",  "4:00 PM – 5:30 PM"].map((t) => (
+                    <option key={t}>{t}</option>
+                  ))}
+                </select>
+              </div>
             </div>
           </div>
 
           {/* Rate */}
-          <div className="p-4 bg-green/6 border border-green/15 rounded-xl">
-            <p className="text-[0.62rem] font-semibold tracking-[0.15em] uppercase text-green-mid mb-1">Rate</p>
-            <p className="text-green-mid font-black text-2xl">₱0 — FREE</p>
+          <div className="p-4 bg-green/6 border border-green/15 rounded-xl
+                          flex items-center justify-between">
+            <div>
+              <p className="text-[0.62rem] font-semibold tracking-[0.15em] uppercase
+                            text-green-mid mb-0.5">
+                Rate
+              </p>
+              <p className="text-green-mid font-black text-2xl leading-none">₱0 — FREE</p>
+            </div>
+            <span className="text-4xl" aria-hidden="true">🎁</span>
           </div>
 
-          <div className="p-4 bg-warning/8 border border-warning/25 rounded-xl text-xs text-navy/75 flex gap-2.5">
-            <span className="text-warning flex-shrink-0" aria-hidden="true">⚠️</span>
-            <p>By confirming, you acknowledge that you have read and agree to the <strong>Oak Sports Academy Waiver and Release Form</strong>.</p>
+          {/* Waiver & Consent */}
+          <div>
+            <p className="font-semibold text-[0.68rem] tracking-[0.15em] uppercase
+                           text-navy/90 mb-3">
+              Step 3 — Waiver &amp; Consent <span className="text-error">*</span>
+            </p>
+
+            {/* Checkbox row */}
+            <label
+              className={cn(
+                "flex items-start gap-3.5 p-5 rounded-xl border-2 cursor-pointer",
+                "transition-all duration-150 select-none",
+                trialWaiverChecked
+                  ? "border-gold bg-gold/5"
+                  : "border-neutral-200 bg-white hover:border-gold/40"
+              )}
+            >
+              {/* Custom checkbox */}
+              <div className="relative flex-shrink-0 mt-0.5">
+                <input
+                  type="checkbox"
+                  checked={trialWaiverChecked}
+                  onChange={(e) => setTrialWaiverChecked(e.target.checked)}
+                  className="sr-only"
+                  aria-describedby="trial-waiver-desc"
+                />
+                <div
+                  className={cn(
+                    "w-5 h-5 rounded border-2 flex items-center justify-center",
+                    "transition-all duration-150",
+                    trialWaiverChecked
+                      ? "bg-gold border-gold"
+                      : "bg-white border-neutral-300"
+                  )}
+                  aria-hidden="true"
+                >
+                  {trialWaiverChecked && (
+                    <svg
+                      className="w-3 h-3 text-navy"
+                      viewBox="0 0 12 10"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <polyline points="1,5 4.5,8.5 11,1" />
+                    </svg>
+                  )}
+                </div>
+              </div>
+
+              {/* Label text */}
+              <span
+                id="trial-waiver-desc"
+                className="text-sm text-neutral-700 leading-relaxed"
+              >
+                By checking this box, I confirm that I have read, understood, and agree
+                to the terms and conditions of the{" "}
+                <button
+                  type="button"
+                  onClick={(e) => { e.preventDefault(); setWaiverModalOpen(true); }}
+                  className="font-bold text-gold-dark underline underline-offset-2
+                             hover:text-gold transition-colors duration-150
+                             focus:outline-none focus-visible:ring-2
+                             focus-visible:ring-gold focus-visible:rounded-sm"
+                >
+                  Oak Sports Academy Waiver and Release Form
+                </button>
+                .
+              </span>
+            </label>
+
+            {/* Read waiver link */}
+            <p className="text-xs text-neutral-400 mt-2.5 flex items-center gap-1.5">
+              <span aria-hidden="true">📄</span>
+              <span>
+                You can{" "}
+                <button
+                  type="button"
+                  onClick={() => setWaiverModalOpen(true)}
+                  className="text-gold-dark font-medium underline underline-offset-2
+                             hover:text-gold transition-colors"
+                >
+                  read the full waiver here
+                </button>{" "}
+                before agreeing.
+              </span>
+            </p>
           </div>
         </div>
       </Modal>
@@ -843,95 +1226,159 @@ export default function DashboardPage() {
           REGULAR TRAINING MODAL
       ════════════════════════════════════════ */}
       <Modal
-        title="🥋 Regular Training Registration"
+        title={trainingOption === "private"
+          ? "🎯 One-on-One Private Coaching"
+          : "👥 Group Class Enrollment"}
         open={regModalOpen}
         onClose={() => setRegModalOpen(false)}
         footer={
           <>
-            <Button variant="secondary" size="md" onClick={() => setRegModalOpen(false)}>Cancel</Button>
-            <Button variant="primary"   size="md" onClick={confirmEnrollment}>Confirm Enrollment</Button>
+            <Button variant="secondary" size="md" onClick={() => setRegModalOpen(false)}>
+              Cancel
+            </Button>
+            <Button
+              variant="primary"
+              size="md"
+              onClick={confirmEnrollment}
+              disabled={!waiverChecked}
+              title={!waiverChecked ? "Please read and agree to the waiver to continue." : undefined}
+            >
+              Confirm Enrollment
+            </Button>
           </>
         }
       >
         <div className="space-y-7">
-          {/* Training option */}
-          <div>
-            <p className="font-semibold text-[0.65rem] tracking-[0.18em] uppercase text-neutral-400 mb-3">
-              Step 1 — Choose Training Option
+
+          {/* ── Context banner ── */}
+          <div className={cn(
+            "p-3.5 rounded-xl border flex gap-3 text-sm",
+            trainingOption === "private"
+              ? "bg-green/6 border-green/20 text-navy/80"
+              : "bg-info/8 border-info/25 text-navy/80"
+          )}>
+            <span aria-hidden="true" className="flex-shrink-0 text-lg">
+              {trainingOption === "private" ? "🎯" : "👥"}
+            </span>
+            <p>
+              {trainingOption === "private"
+                ? "One-on-One Private Coaching — fully personalised sessions with the head coach at your own pace."
+                : "Group Class — small-group training (min 3, max 5 students). Train alongside peers in a focused environment."}
             </p>
-            <div className="grid sm:grid-cols-2 gap-3">
-              {([
-                { v:"group"   as const, icon:"👥", title:"Group Class",           desc:"Min 3 – Max 5 students per group" },
-                { v:"private" as const, icon:"🎯", title:"One-on-One Private",    desc:"One participant · One coach" },
-              ]).map(({ v, icon, title, desc }) => (
-                <button key={v} type="button"
-                  onClick={() => { setTrainingOption(v); setSelectedPackage(null); }}
-                  aria-pressed={trainingOption === v}
-                  className={cn(
-                    "flex items-center gap-3 p-4 rounded-xl border-2 text-left transition-all duration-150",
-                    trainingOption === v
-                      ? "border-gold bg-gold/5"
-                      : "border-neutral-200 hover:border-gold/40"
-                  )}>
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-navy to-green
-                                  flex items-center justify-center text-xl flex-shrink-0">
-                    {icon}
-                  </div>
-                  <div>
-                    <p className="font-semibold text-navy text-sm">{title}</p>
-                    <p className="text-neutral-400 text-xs mt-0.5">{desc}</p>
-                  </div>
-                </button>
-              ))}
-            </div>
           </div>
 
-          {/* Program */}
+          {/* ── Step 1 — Age Group ── */}
           <div>
-            <p className="font-semibold text-[0.65rem] tracking-[0.18em] uppercase text-neutral-400 mb-3">
-              Step 2 — Select Program
+            <p className="font-semibold text-[0.65rem] tracking-[0.18em] uppercase
+                           text-neutral-400 mb-3">
+              Step 1 — Select Age Group <span className="text-error">*</span>
             </p>
             <div className="grid grid-cols-2 gap-3">
               {[
-                { v:"kyorugi", icon:"⚔️", label:"Kyorugi", sub:"Sparring" },
-                { v:"poomsae", icon:"🌿", label:"Poomsae", sub:"Forms" },
+                { v: "3-5",    icon: "🐣", label: "3 – 5 Years Old",   sub: "Little Champions" },
+                { v: "6-12",   icon: "🧒", label: "6 – 12 Years Old",  sub: "Junior Warriors"  },
+                { v: "13-18",  icon: "🧑", label: "13 – 18 Years Old", sub: "Teen Athletes"    },
+                { v: "adults", icon: "🏅", label: "Adults (18+)",      sub: "Adult Champions"  },
               ].map(({ v, icon, label, sub }) => (
-                <button key={v} type="button"
-                  className="flex items-center gap-3 p-4 rounded-xl border-2 border-neutral-200
-                             hover:border-gold/50 text-left transition-all duration-150">
-                  <span className="text-2xl" aria-hidden="true">{icon}</span>
-                  <div>
-                    <p className="font-semibold text-navy text-sm">{label}</p>
-                    <p className="text-neutral-400 text-xs">{sub}</p>
+                <button
+                  key={v}
+                  type="button"
+                  onClick={() => setRegAgeGroup(v)}
+                  aria-pressed={regAgeGroup === v}
+                  className={cn(
+                    "text-left p-3.5 rounded-xl border-2 transition-all duration-150",
+                    regAgeGroup === v
+                      ? "border-gold bg-gold/5 shadow-gold-sm"
+                      : "border-neutral-200 hover:border-gold/40 bg-white"
+                  )}
+                >
+                  <div className="flex items-center justify-between mb-1.5">
+                    <span className="text-xl" aria-hidden="true">{icon}</span>
+                    {regAgeGroup === v && (
+                      <span className="w-5 h-5 rounded-full bg-gold flex items-center
+                                       justify-center text-navy text-[0.65rem] font-black">
+                        ✓
+                      </span>
+                    )}
                   </div>
+                  <p className="font-bold text-navy text-sm leading-tight">{label}</p>
+                  <p className="text-neutral-400 text-xs mt-0.5">{sub}</p>
                 </button>
               ))}
             </div>
           </div>
 
-          {/* Frequency + schedule */}
+          {/* ── Step 2 — Program ── */}
           <div>
-            <p className="font-semibold text-[0.65rem] tracking-[0.18em] uppercase text-neutral-400 mb-3">
-              Step 3 — Frequency &amp; Schedule
+            <p className="font-semibold text-[0.65rem] tracking-[0.18em] uppercase
+                           text-neutral-400 mb-3">
+              Step 2 — Select Program <span className="text-error">*</span>
+            </p>
+            <div className="grid grid-cols-2 gap-3">
+              {[
+                { v: "kyorugi", icon: "⚔️", label: "Kyorugi", sub: "Olympic Sparring" },
+                { v: "poomsae", icon: "🌿", label: "Poomsae", sub: "Traditional Forms" },
+              ].map(({ v, icon, label, sub }) => (
+                <button
+                  key={v}
+                  type="button"
+                  onClick={() => setSelectedProgram(v)}
+                  aria-pressed={selectedProgram === v}
+                  className={cn(
+                    "flex items-center gap-3 p-4 rounded-xl border-2 text-left",
+                    "transition-all duration-150",
+                    selectedProgram === v
+                      ? "border-gold bg-gold/5 shadow-gold-sm"
+                      : "border-neutral-200 hover:border-gold/50 bg-white"
+                  )}
+                >
+                  <span className="text-2xl flex-shrink-0" aria-hidden="true">{icon}</span>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-navy text-sm">{label}</p>
+                    <p className="text-neutral-400 text-xs mt-0.5">{sub}</p>
+                  </div>
+                  {selectedProgram === v && (
+                    <span
+                      className="w-5 h-5 rounded-full bg-gold flex items-center justify-center
+                                 text-navy text-[0.65rem] font-black flex-shrink-0"
+                      aria-hidden="true"
+                    >
+                      ✓
+                    </span>
+                  )}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* ── Step 3 — Frequency & Schedule ── */}
+          <div>
+            <p className="font-semibold text-[0.65rem] tracking-[0.18em] uppercase
+                           text-neutral-400 mb-3">
+              Step 3 — Frequency &amp; Schedule <span className="text-error">*</span>
             </p>
             <div className="grid sm:grid-cols-2 gap-4">
               <div>
-                <label className="font-semibold text-[0.68rem] tracking-[0.15em] uppercase text-navy/90 block mb-1.5">
-                  Training Frequency <span className="text-error">*</span>
+                <label className="font-semibold text-[0.68rem] tracking-[0.15em] uppercase
+                                   text-navy/90 block mb-1.5">
+                  Training Frequency
                 </label>
-                <select className="w-full h-11 px-4 rounded-md border border-neutral-300 text-sm bg-white
-                                    focus:outline-none focus:border-gold transition-all appearance-none">
+                <select className="w-full h-11 px-4 rounded-md border border-neutral-300
+                                   text-sm bg-white focus:outline-none focus:border-gold
+                                   transition-all appearance-none">
                   <option value="" disabled>Select frequency</option>
                   <option>Twice a week</option>
                   <option>Thrice a week</option>
                 </select>
               </div>
               <div>
-                <label className="font-semibold text-[0.68rem] tracking-[0.15em] uppercase text-navy/90 block mb-1.5">
-                  Schedule <span className="text-error">*</span>
+                <label className="font-semibold text-[0.68rem] tracking-[0.15em] uppercase
+                                   text-navy/90 block mb-1.5">
+                  Schedule
                 </label>
-                <select className="w-full h-11 px-4 rounded-md border border-neutral-300 text-sm bg-white
-                                    focus:outline-none focus:border-gold transition-all appearance-none">
+                <select className="w-full h-11 px-4 rounded-md border border-neutral-300
+                                   text-sm bg-white focus:outline-none focus:border-gold
+                                   transition-all appearance-none">
                   <option value="" disabled>Select schedule</option>
                   <option>Weekday — After-School Classes</option>
                   <option>Weekend — Saturday Classes</option>
@@ -940,61 +1387,97 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          {/* Package */}
+          {/* ── Step 4 — Package ── */}
           <div>
-            <p className="font-semibold text-[0.65rem] tracking-[0.18em] uppercase text-neutral-400 mb-3">
-              Step 4 — Select Package
+            <p className="font-semibold text-[0.65rem] tracking-[0.18em] uppercase
+                           text-neutral-400 mb-3">
+              Step 4 — Select Package <span className="text-error">*</span>
             </p>
             <div className="grid sm:grid-cols-2 gap-4">
               {([
-                { v:"without-uniform" as RegPackage, name:"Without Premium Uniform", price:withoutPrice, detail:"8 sessions total", featured:false },
-                { v:"with-uniform"    as RegPackage, name:"With Premium Uniform",    price:withPrice,    detail:"8 sessions + Free Dobok", featured:true },
+                {
+                  v:        "with-uniform" as RegPackage,
+                  name:     "Premium Package",
+                  price:    trainingOption === "private" ? "₱6,500" : "₱5,500",
+                  detail:   trainingOption === "private"
+                              ? "8 sessions (6 + 2 FREE Bonus) · 🎁 Free Uniform"
+                              : "8 sessions · 🎁 Free Uniform · Save ₱1,000",
+                  featured: true,
+                },
+                {
+                  v:        "without-uniform" as RegPackage,
+                  name:     "Standard Package",
+                  price:    "₱3,800",
+                  detail:   trainingOption === "private"
+                              ? "8 sessions (6 + 2 FREE Bonus) · No uniform"
+                              : "8 sessions · No uniform",
+                  featured: false,
+                },
               ]).map(({ v, name, price, detail, featured }) => (
-                <button key={String(v)} type="button"
+                <button
+                  key={String(v)}
+                  type="button"
                   onClick={() => setSelectedPackage(v)}
                   aria-pressed={selectedPackage === v}
                   className={cn(
                     "rounded-xl overflow-hidden border-2 text-left transition-all duration-150",
-                    selectedPackage === v || featured
+                    selectedPackage === v
                       ? "border-gold shadow-gold-sm"
+                      : featured
+                      ? "border-gold/40 hover:border-gold"
                       : "border-neutral-200 hover:border-gold/40"
-                  )}>
+                  )}
+                >
                   <div className={cn(
                     "px-5 py-4 text-center",
                     featured ? "bg-gradient-to-br from-green to-navy" : "bg-navy"
                   )}>
-                    {featured && <p className="text-gold text-[0.6rem] tracking-widest uppercase mb-1">Recommended</p>}
-                    <p className="text-white font-semibold text-sm mb-2">{name}</p>
+                    {featured && (
+                      <p className="text-gold text-[0.6rem] tracking-widest uppercase mb-1">
+                        Recommended
+                      </p>
+                    )}
+                    <p className="text-white font-semibold text-sm mb-1.5">{name}</p>
                     <p className="font-black text-gold-bright text-2xl">{price}</p>
                   </div>
-                  <div className="p-4 bg-white text-sm text-neutral-600 text-center">{detail}</div>
+                  <div className="p-3.5 bg-white text-xs text-neutral-600 text-center leading-relaxed">
+                    {detail}
+                  </div>
                 </button>
               ))}
             </div>
           </div>
 
-          {/* Appointment date/time */}
+          {/* ── Step 5 — Appointment ── */}
           <div>
-            <p className="font-semibold text-[0.65rem] tracking-[0.18em] uppercase text-neutral-400 mb-3">
-              Step 5 — Schedule First Appointment
+            <p className="font-semibold text-[0.65rem] tracking-[0.18em] uppercase
+                           text-neutral-400 mb-3">
+              Step 5 — Schedule First Appointment <span className="text-error">*</span>
             </p>
             <div className="grid sm:grid-cols-2 gap-4">
               <div>
-                <label className="font-semibold text-[0.68rem] tracking-[0.15em] uppercase text-navy/90 block mb-1.5">
-                  Preferred Start Date <span className="text-error">*</span>
+                <label className="font-semibold text-[0.68rem] tracking-[0.15em] uppercase
+                                   text-navy/90 block mb-1.5">
+                  Preferred Start Date
                 </label>
-                <input type="date"
-                  className="w-full h-11 px-4 rounded-md border border-neutral-300 text-sm bg-white
-                             focus:outline-none focus:border-gold focus:shadow-focus-gold transition-all" />
+                <input
+                  type="date"
+                  className="w-full h-11 px-4 rounded-md border border-neutral-300 text-sm
+                             bg-white focus:outline-none focus:border-gold
+                             focus:shadow-focus-gold transition-all"
+                />
               </div>
               <div>
-                <label className="font-semibold text-[0.68rem] tracking-[0.15em] uppercase text-navy/90 block mb-1.5">
-                  Preferred Time <span className="text-error">*</span>
+                <label className="font-semibold text-[0.68rem] tracking-[0.15em] uppercase
+                                   text-navy/90 block mb-1.5">
+                  Preferred Time
                 </label>
-                <select className="w-full h-11 px-4 rounded-md border border-neutral-300 text-sm bg-white
-                                    focus:outline-none focus:border-gold transition-all appearance-none">
+                <select className="w-full h-11 px-4 rounded-md border border-neutral-300
+                                   text-sm bg-white focus:outline-none focus:border-gold
+                                   transition-all appearance-none">
                   <option value="" disabled>Select time slot</option>
-                  {["8:00 AM – 9:30 AM","10:00 AM – 11:30 AM","2:00 PM – 3:30 PM","4:00 PM – 5:30 PM"].map((t) => (
+                  {["8:00 AM – 9:30 AM", "10:00 AM – 11:30 AM",
+                    "2:00 PM – 3:30 PM",  "4:00 PM – 5:30 PM"].map((t) => (
                     <option key={t}>{t}</option>
                   ))}
                 </select>
@@ -1002,10 +1485,279 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          <div className="p-4 bg-warning/8 border border-warning/25 rounded-xl text-xs text-navy/75 flex gap-2.5">
-            <span className="text-warning flex-shrink-0" aria-hidden="true">⚠️</span>
-            <p>By confirming, you agree to the <strong>Oak Sports Academy Waiver and Release Form</strong>.</p>
+          {/* ── Step 6 — Waiver & Consent ── */}
+          <div>
+            <p className="font-semibold text-[0.65rem] tracking-[0.18em] uppercase
+                           text-neutral-400 mb-4">
+              Step 6 — Waiver &amp; Consent <span className="text-error">*</span>
+            </p>
+
+            {/* Checkbox row */}
+            <label
+              className={cn(
+                "flex items-start gap-3.5 p-5 rounded-xl border-2 cursor-pointer",
+                "transition-all duration-150 select-none",
+                waiverChecked
+                  ? "border-gold bg-gold/5"
+                  : "border-neutral-200 bg-white hover:border-gold/40"
+              )}
+            >
+              {/* Custom checkbox */}
+              <div className="relative flex-shrink-0 mt-0.5">
+                <input
+                  type="checkbox"
+                  checked={waiverChecked}
+                  onChange={(e) => setWaiverChecked(e.target.checked)}
+                  className="sr-only"
+                  aria-describedby="waiver-desc"
+                />
+                <div
+                  className={cn(
+                    "w-5 h-5 rounded border-2 flex items-center justify-center",
+                    "transition-all duration-150",
+                    waiverChecked
+                      ? "bg-gold border-gold"
+                      : "bg-white border-neutral-300"
+                  )}
+                  aria-hidden="true"
+                >
+                  {waiverChecked && (
+                    <svg
+                      className="w-3 h-3 text-navy"
+                      viewBox="0 0 12 10"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <polyline points="1,5 4.5,8.5 11,1" />
+                    </svg>
+                  )}
+                </div>
+              </div>
+
+              {/* Label text */}
+              <span
+                id="waiver-desc"
+                className="text-sm text-neutral-700 leading-relaxed"
+              >
+                By checking this box, I confirm that I have read, understood, and agree
+                to the terms and conditions of the{" "}
+                <button
+                  type="button"
+                  onClick={(e) => { e.preventDefault(); setWaiverModalOpen(true); }}
+                  className="font-bold text-gold-dark underline underline-offset-2
+                             hover:text-gold transition-colors duration-150
+                             focus:outline-none focus-visible:ring-2
+                             focus-visible:ring-gold focus-visible:rounded-sm"
+                >
+                  Oak Sports Academy Waiver and Release Form
+                </button>
+                .
+              </span>
+            </label>
+
+            {/* View waiver link below */}
+            <p className="text-xs text-neutral-400 mt-2.5 flex items-center gap-1.5">
+              <span aria-hidden="true">📄</span>
+              <span>
+                You can{" "}
+                <button
+                  type="button"
+                  onClick={() => setWaiverModalOpen(true)}
+                  className="text-gold-dark font-medium underline underline-offset-2
+                             hover:text-gold transition-colors"
+                >
+                  read the full waiver here
+                </button>{" "}
+                before agreeing.
+              </span>
+            </p>
           </div>
+
+        </div>
+      </Modal>
+
+      {/* ════════════════════════════════════════
+          WAIVER & RELEASE FORM MODAL
+      ════════════════════════════════════════ */}
+      <Modal
+        title="📜 Oak Sports Academy — Waiver & Release Form"
+        open={waiverModalOpen}
+        onClose={() => setWaiverModalOpen(false)}
+        footer={
+          <Button variant="primary" size="md" onClick={() => setWaiverModalOpen(false)}>
+            Close
+          </Button>
+        }
+      >
+        <div className="space-y-6 text-sm text-neutral-700 leading-relaxed">
+
+          {/* Header */}
+          <div className="p-4 bg-navy rounded-xl text-center">
+            <p className="text-gold font-bold text-[0.68rem] tracking-[0.2em] uppercase mb-1">
+              Legal Document
+            </p>
+            <h3 className="text-white font-bold text-base leading-snug">
+              Release and Waiver of Liability<br />and Indemnity Agreement
+            </h3>
+          </div>
+
+          <p className="text-neutral-600">
+            In consideration of being allowed to participate in any Oaks Sports Academy program,
+            activity, or event, or to enter any restricted area where access to the general public
+            is not permitted, the parent(s) and/or legal guardian(s) of the minor participant agree
+            to the following terms:
+          </p>
+
+          {/* Section 1 */}
+          <div>
+            <h4 className="font-bold text-navy mb-2">1. Safety Responsibility</h4>
+            <ul className="space-y-2 list-none pl-0">
+              {[
+                "I/We agree to instruct the minor participant to carefully inspect the facilities and equipment before participating in any martial arts activity or event.",
+                "If the participant notices or believes that any facility, equipment, or condition is unsafe, he/she must immediately inform the appropriate instructor or official and must not participate until the concern has been addressed.",
+                "I/We understand that the participant has the right and responsibility to refuse to participate in any activity that he/she believes is unsafe.",
+              ].map((item, i) => (
+                <li key={i} className="flex items-start gap-2.5">
+                  <span className="text-gold font-bold flex-shrink-0 mt-0.5">•</span>
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Section 2 */}
+          <div>
+            <h4 className="font-bold text-navy mb-2">2. Understanding of the Risks</h4>
+            <p className="mb-2">
+              I/We fully understand and acknowledge that participation in martial arts activities
+              involves inherent risks, including but not limited to:
+            </p>
+            <ul className="space-y-1.5 pl-4 mb-3">
+              {[
+                "Bodily injury or physical harm;",
+                "Serious or permanent disability;",
+                "Paralysis;",
+                "Property damage; and",
+                "Death.",
+              ].map((item, i) => (
+                <li key={i} className="flex items-start gap-2.5">
+                  <span className="text-gold font-bold flex-shrink-0">–</span>
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
+            <p className="mb-2">
+              I/We also understand that these risks may result in significant medical, personal,
+              emotional, and financial consequences.
+            </p>
+            <p>
+              These risks may arise from the actions or inactions of the participant, other
+              participants, instructors, staff, or other individuals, including the parties
+              identified as &quot;Releasees&quot; below. I/We also acknowledge that there may be risks
+              that are unknown or cannot reasonably be anticipated at this time.
+            </p>
+          </div>
+
+          {/* Section 3 */}
+          <div>
+            <h4 className="font-bold text-navy mb-2">3. Assumption of Risk</h4>
+            <p>
+              I/We voluntarily accept and assume all risks associated with the participant&apos;s
+              involvement in the martial arts program, activity, or event. This includes
+              responsibility for any loss, injury, disability, paralysis, death, or property damage
+              that may occur, whether caused in whole or in part by the negligence or actions of
+              the Releasees, to the extent permitted by applicable law.
+            </p>
+          </div>
+
+          {/* Section 4 */}
+          <div>
+            <h4 className="font-bold text-navy mb-2">4. Release and Waiver of Liability</h4>
+            <p className="mb-2">
+              I/We hereby <strong>RELEASE, WAIVE, DISCHARGE, AND AGREE NOT TO SUE</strong> Oak
+              Sports and the martial arts facility used by the participant, including its owners,
+              managers, instructors, promoters, lessees, event or premises inspectors, consultants,
+              underwriters, agents, employees, officers, directors, and other individuals or
+              organizations involved in providing recommendations, instructions, supervision, risk
+              evaluation, or safety and loss-control activities related to the facility or event.
+            </p>
+            <p className="mb-2">
+              All of the above parties are collectively referred to as the &quot;Releasees.&quot;
+            </p>
+            <p>
+              To the fullest extent permitted by applicable law, I/We release and hold the Releasees
+              harmless from any and all claims, demands, losses, damages, liabilities, or causes of
+              action arising from or related to the participant&apos;s involvement in the martial arts
+              program, activity, or event, including claims involving personal injury, disability,
+              death, or property damage, whether alleged to have been caused in whole or in part by
+              the negligence of the Releasees or otherwise.
+            </p>
+          </div>
+
+          {/* Section 5 */}
+          <div>
+            <h4 className="font-bold text-navy mb-2">5. Acknowledgment of Serious Risks</h4>
+            <p className="mb-2">
+              I/We understand and acknowledge that martial arts activities can be physically
+              demanding and involve the risk of serious injury, disability, death, and/or property
+              damage.
+            </p>
+            <p>
+              I/We further understand that an injury may become more serious due to circumstances
+              involving emergency response, rescue, or medical assistance, including circumstances
+              involving the negligence of persons providing such assistance, to the extent permitted
+              by applicable law.
+            </p>
+          </div>
+
+          {/* Section 6 */}
+          <div>
+            <h4 className="font-bold text-navy mb-2">6. Applicable Law and Severability</h4>
+            <p className="mb-2">
+              I/We agree that this Release, Waiver, and Indemnity Agreement is intended to be as
+              broad and inclusive as permitted by the laws of the Province or State in which the
+              martial arts program or event takes place.
+            </p>
+            <p>
+              If any portion of this Agreement is determined to be invalid or unenforceable, the
+              remaining provisions shall continue to remain in full force and effect to the extent
+              permitted by law.
+            </p>
+          </div>
+
+          {/* Section 7 */}
+          <div>
+            <h4 className="font-bold text-navy mb-2">
+              7. Parent/Legal Guardian Agreement and Indemnification
+            </h4>
+            <p className="mb-2">
+              By signing this Agreement, I/We confirm that I/We are the parent(s) and/or legal
+              guardian(s) of the minor participant and that I/We have read, understood, and
+              voluntarily agreed to the terms of this Release, Waiver, and Indemnity Agreement.
+            </p>
+            <p>
+              I/We agree that if, despite this Agreement, the participant or anyone acting on the
+              participant&apos;s behalf makes a claim or brings an action against any of the Releasees,
+              I/We will, to the extent permitted by applicable law, reimburse and hold harmless the
+              Releasees from any amounts they are legally required to pay to the participant or on
+              the participant&apos;s behalf.
+            </p>
+          </div>
+
+          {/* Footer notice */}
+          <div className="p-4 bg-warning/8 border border-warning/25 rounded-xl
+                          flex items-start gap-2.5 text-xs text-neutral-600">
+            <span className="text-warning flex-shrink-0" aria-hidden="true">⚠️</span>
+            <p>
+              Please read this document carefully before accepting. By ticking the checkbox
+              in the enrollment form, you confirm that you have read, understood, and agree
+              to all terms above.
+            </p>
+          </div>
+
         </div>
       </Modal>
 

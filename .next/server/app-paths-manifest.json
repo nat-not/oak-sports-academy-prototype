@@ -1,11 +1,9 @@
 {
   "/_not-found/page": "app/_not-found/page.js",
-  "/(public)/merch/page": "app/(public)/merch/page.js",
-  "/(public)/contact/page": "app/(public)/contact/page.js",
-  "/(auth)/login/page": "app/(auth)/login/page.js",
-  "/(dashboard)/dashboard/page": "app/(dashboard)/dashboard/page.js",
-  "/(auth)/signup/page": "app/(auth)/signup/page.js",
   "/page": "app/page.js",
+  "/(public)/about/page": "app/(public)/about/page.js",
+  "/(public)/contact/page": "app/(public)/contact/page.js",
+  "/(public)/merch/page": "app/(public)/merch/page.js",
   "/(public)/events/page": "app/(public)/events/page.js",
   "/(public)/training-programs/page": "app/(public)/training-programs/page.js"
 }
